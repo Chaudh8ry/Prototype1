@@ -1,0 +1,193 @@
+@import "tailwindcss";
+
+:root {
+  /* Typography */
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
+
+  /* Design Tokens */
+  --color-primary: #10b981; /* emerald-600 */
+  --color-secondary: #f59e0b; /* amber-500 */
+  --color-error: #dc2626; /* red-600 */
+  --color-text-heading: #1f2937; /* gray-800 */
+  --color-text-body: #4b5563; /* gray-600 */
+  --color-text-muted: #6b7280; /* gray-500 */
+  --color-border: #e5e7eb; /* gray-200 */
+  --color-card-bg: #ffffff;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Typography System */
+h1, .h1 {
+  font-family: 'Lexend', 'Inter', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-text-heading);
+  letter-spacing: -0.02em;
+}
+
+h2, .h2 {
+  font-family: 'Lexend', 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text-heading);
+  letter-spacing: -0.01em;
+}
+
+h3, .h3 {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-text-heading);
+  letter-spacing: 0.01em;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  color: var(--color-text-body);
+  background: linear-gradient(to bottom right, #f0fdf4, #eff6ff, #faf5ff);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+#root {
+  width: 100%;
+}
+
+/* Card Styles */
+.card {
+  background: var(--color-card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Button Styles */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Focus styles for better accessibility */
+button:focus,
+input:focus,
+textarea:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for interactive elements */
+button,
+input,
+textarea,
+a {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Form Inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea {
+  border-radius: 8px;
+  border: 1px solid #d1d5db; /* gray-300 */
+  transition: all 0.2s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: #3b82f6; /* blue-500 */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.stagger-item {
+  animation: slideUp 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+/* Ensure proper spacing on mobile */
+@media (max-width: 768px) {
+  #root {
+    padding: 1rem;
+  }
+}

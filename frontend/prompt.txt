@@ -1,0 +1,520 @@
+InnerVerse Product + Design Master Prompt
+
+Project name:
+InnerVerse
+
+Core product definition:
+InnerVerse is an AI-powered nutrition label scanner that helps people understand packaged foods based on their personal health profile. A user signs up, creates a health profile, scans a food package, reviews the extracted ingredients and nutrition facts, receives a personalized report, and can save scans for later review.
+
+Core product positioning:
+This is not a generic calorie tracker.
+This is not a niche technical dashboard.
+This is not a medical portal.
+This is a premium global consumer wellness product that feels intelligent, modern, approachable, and trustworthy.
+
+Primary positioning statement:
+"An AI nutrition label scanner that evaluates packaged foods based on your personal health profile, not generic rules."
+
+Product promise:
+- Make food labels easier to understand
+- Turn ingredient complexity into simple guidance
+- Personalize recommendations using health profile context
+- Help users make better real-world shopping decisions
+
+User flow that must remain intact:
+1. Login / Signup
+2. Health Profile Onboarding
+3. Dashboard / Home
+4. Scan Food Package
+5. Review OCR / Edit Ingredients and Nutrition Data
+6. Final Personalized Report
+7. Save Scan
+8. Scan History / Insights
+
+Non-negotiable product principles:
+- The app must feel like a global wellness product, not a student project
+- The UI must feel premium but human
+- The product must feel mobile-first, but still polished on desktop
+- The user should always understand what to do next
+- The product should build trust before showing intelligence
+- The final report should feel insightful, visual, and engaging, not like a long article
+- Every major step should reduce friction, not add complexity
+
+Design direction we agreed on:
+- Warm premium wellness-tech
+- Consumer-first
+- Human and inviting
+- Visually strong, not sterile
+- Clean hierarchy, but not minimal to the point of feeling empty
+- Modern, polished, and product-grade
+
+What the UI should NOT feel like:
+- A niche B2B SaaS dashboard
+- A cold monochrome tech website
+- A generic fitness tracker
+- A hospital software portal
+- A purple-heavy AI template
+- A plain text-heavy report page
+
+Overall visual identity:
+- Soft warm background tones
+- Clean white cards
+- Fresh vivid green as a high-energy product accent
+- Secondary accents in sky blue, amber, coral, soft sage, and muted violet where helpful
+- Strong but tasteful shadows
+- Rounded premium surfaces
+- Friendly, clear, slightly bold typography
+- Elegant spacing with intentional breathing room
+
+Suggested color system:
+- Base background: warm off-white / soft stone
+- Card background: white
+- Text primary: deep charcoal / near-black
+- Text secondary: calm slate gray
+- Accent primary: vivid fresh green
+- Accent support: soft sky, muted amber, coral, soft teal, muted violet
+- Success: green
+- Warning: amber
+- Danger: coral-red
+
+Typography direction:
+- Headings: strong, rounded, modern sans
+- Body: clean sans with high readability
+- Product tone: polished, friendly, and confident
+- Avoid anything too corporate or too cold
+
+Motion direction:
+- Use subtle staggered reveals for cards
+- Hero sections can have soft floating or glow effects
+- Progress indicators should animate cleanly
+- Score rings and chart sections should feel alive
+- Motion should support delight and clarity, not noise
+
+Layout direction:
+- Mobile-first
+- Strong section rhythm
+- Large primary CTA at the right moments
+- Desktop layouts should breathe more and avoid long vertical stacks
+- Side summaries or sticky support panels are useful on large screens
+
+Trust and clarity principles:
+- Always show the user what the app is doing
+- Make AI feel assistive, not mysterious
+- Use badges such as AI Extracted, User Confirmed, Personalized
+- Show confidence through clean information hierarchy and visual cues
+
+Screen-by-screen product vision
+
+1. Login / Signup
+Goal:
+Create a strong emotional first impression and establish the product as a premium nutrition companion.
+
+Design direction:
+- Welcome-first, not form-first
+- Hero visual should feel unique and product-specific
+- Avoid generic stock imagery
+- Show a food-label / packaged-food / scanning-oriented visual language
+- Auth forms should feel elegant and easy
+
+UX requirements:
+- Login and signup must preserve current email/password flow
+- Only show supported auth methods
+- No fake Apple login if not implemented
+- Switching between login and signup should feel seamless
+
+Key visual traits:
+- Large welcoming heading
+- Strong InnerVerse brand moment
+- Hero illustration or AI-generated visual
+- Friendly supporting copy
+- Clean input fields
+- Large primary submit action
+
+Current status:
+- Auth shell redesigned
+- Unsupported Apple button removed
+- Stock-like image replaced with custom stylized hero illustration
+
+Future improvements:
+- Better animated hero illustration
+- More package-scanning visual motifs
+- Optional onboarding microcopy carousel
+
+2. Health Profile Onboarding
+Goal:
+Turn profile completion into a guided wellness intake, not a long boring form.
+
+Design direction:
+- Feels like onboarding
+- Clear progress
+- Warm, encouraging, thoughtful
+- Better on desktop and mobile
+
+UX requirements:
+- Keep current fields and payload shape
+- Age group and activity level remain required
+- Height / weight optional
+- Conditions must preserve existing backend categories
+- Allergies must preserve existing options
+- Save flow must remain intact
+
+Important experience notes:
+- Show why information is being asked
+- Use section intros and supportive microcopy
+- Make selection feel simple and not overwhelming
+- Desktop should use better columns and side summaries
+
+Current status:
+- Strongly redesigned
+- Progress header added
+- Profile completeness panel added
+- Step sections improved
+- Desktop balance improved after refinement
+
+Future improvements:
+- True step-by-step navigation instead of a single long page
+- Autosave between sections
+- Profile preview card with "how this changes your analysis"
+
+3. Dashboard / Home
+Goal:
+Create a home screen that makes scanning feel exciting and makes the product feel alive.
+
+Design direction:
+- Strong hero scan CTA
+- Visual daily progress style
+- Recent scans area
+- Nutrition tip / AI insight card
+- Bottom-nav-like mobile shell
+
+UX requirements:
+- Keep current scan upload behavior
+- Keep profile edit, history access, and logout
+- Pull recent scans dynamically
+- Keep health profile gate before full analysis
+
+Current status:
+- Redesigned using premium wellness-tech direction
+- Hero scan area added
+- Recent scans cards added
+- Tip panel added
+- Dashboard is now much more product-like
+
+Future improvements:
+- Real dashboard stats from user history
+- Personalized scan streaks
+- Compare recent products
+- Dynamic insight cards based on saved scans
+
+4. Scan Capture Screen
+Goal:
+Make uploading or capturing a package feel simple, trustworthy, and premium.
+
+Design direction:
+- Large scan/upload area
+- Strong scan CTA
+- Helpful visual tips
+- Good mobile ergonomics
+
+Must support:
+- Upload image
+- Capture from camera
+- Preview selected image
+- Continue to OCR extraction
+
+Future improvements:
+- Multi-image support
+- Image quality hints
+- Better camera framing guide
+- OCR confidence preview
+
+5. OCR Confirmation / Edit Screen
+Goal:
+This should become a trust-building screen where the user sees that the product is smart but still under their control.
+
+Design direction:
+- Clean, structured editing
+- Separate ingredients and nutrition facts visually
+- Highlight uncertain entries
+- Strong confirm-and-analyze CTA
+
+Must support:
+- Review image
+- Edit product name
+- Edit extracted ingredients
+- Edit nutrition table
+- Continue to final report
+
+Current status:
+- Redesigned into premium card-based layout with side-by-side image, ingredient rows, and nutrition rows
+- Shows AI Extracted vs User Confirmed badges and surfaces low-confidence extractions when available
+
+High-priority redesign requirements:
+- Move away from heavy textarea feel ✅
+- Use structured editable chips / rows / cards ✅
+- Show low-confidence extraction highlights (when confidence scores are provided) ✅
+- Make it feel collaborative, not technical ✅
+
+6. Final Report
+Goal:
+This is the most important screen in the product and must feel visually engaging, valuable, and easy to understand quickly.
+
+Design direction:
+- Strong score-led hero
+- Visual storytelling first
+- Less reading burden
+- More cards, charts, and highlights
+- Better sense of animation and momentum
+
+Must show:
+- Overall rating
+- Summary
+- Allergens
+- Moderation advice
+- Alternative suggestion
+- Ingredient composition
+- Nutrition facts
+- Ingredient-level breakdown
+- Save scan
+
+Current status:
+- Redesigned in new visual direction
+- Then refined again to be more visual and less text-heavy
+- Includes fit score ring, "Top 3 reasons" block, signal cards, ingredient composition chart, nutrition view cards, ingredient-level cards, and a simple radar-style nutrition profile
+
+Current issue to keep improving:
+- It should become even more emotionally engaging and visual
+- The report must never feel like a document
+
+Next-level visual improvements recommended:
+- Animated radar chart for sugar / sodium / fat / protein / fiber / processing (current version is static)
+- More dynamic score visualization and micro-animations
+- More visual compare bars
+- Better ingredient chip system
+- Scan confidence / AI extracted / user confirmed indicators
+
+7. Scan History
+Goal:
+Make saved scans feel valuable over time, not just archived records.
+
+Design direction:
+- Card-driven
+- Search and filters
+- Product thumbnails or stronger visual identity per scan
+- Summary stats at top
+
+Current status:
+- Redesigned into a premium card-driven view with summary stats, search, and rating filters
+- Cards show rating, product name, and scan date with improved empty and error states
+
+Future improvements:
+- Quick compare between multiple products
+- Trend indicators surfaced more prominently
+
+8. Insights
+Goal:
+Turn scan history into meaningful nutrition behavior feedback.
+
+Current status:
+- First Insights screen implemented with average score over time, rating mix, and basic pattern highlights
+- Backend now exposes an /api/analysis/insights endpoint that aggregates saved scans (scores, rating mix, basic sugar/sodium trends, and top concern signals)
+
+Today shows:
+- Average report score over time (1–3 scale)
+- Mix of Healthy / Moderately Healthy / Unhealthy results
+- Simple bar-style trend over recent scan days
+- Most common concern-style patterns inferred from moderation advice / summaries and backend insights
+
+Future improvements:
+- Richer sodium and sugar trend visualizations
+- Ingredient pattern trend surfacing by category
+- More explicit personalized improvement suggestions tied to goals
+
+Future feature roadmap
+
+Must-have next design / product improvements:
+1. OCR confirmation screen redesign ✅
+2. Scan history redesign ✅
+3. Insights screen ✅
+4. More visual final report refinements
+
+Should-have product improvements:
+1. Product comparison screen
+2. More advanced dashboard insights
+3. Better report explanation modules
+4. Profile-based food fit score distinct from general health score
+
+Wow features:
+1. Compare two scanned products side by side
+2. Smart alternative recommendations
+3. Family profiles / multi-profile support
+4. Scan confidence and extraction quality visualization
+5. Goal-based nutrition mode like low sodium, high protein, diabetic-friendly, weight management
+
+Advanced product opportunities:
+- Barcode scanning
+- Category-specific advice
+- Trend-based coaching
+- "Better than your usual choice" logic
+- Household profile switching
+
+Content style guide
+
+Tone:
+- Warm
+- Smart
+- Clear
+- Non-judgmental
+- Encouraging
+- Premium but not formal
+
+Avoid:
+- Clinical fear language
+- Overly robotic explanation
+- Dense academic wording
+- Too much jargon
+- Excessive numbers without interpretation
+
+Preferred report communication style:
+- Short, meaningful phrases
+- Summary first
+- Then supporting detail
+- Visual cues over text when possible
+- Specific advice over generic advice
+
+Technical and implementation principles
+
+Frontend:
+- Preserve the existing flow in App.jsx
+- Reuse current API calls and payload shapes whenever possible
+- Do not break auth, profile, scan, confirmation, report, or save flows
+- Improve UI without changing stable business logic unless needed
+
+Editing rules:
+- Prefer component-level redesigns instead of unnecessary architecture rewrites
+- Keep mobile and desktop both intentionally designed
+- Desktop should not be a stretched mobile layout
+- Use animation purposefully, not excessively
+
+Data requirements that must remain compatible:
+- Auth routes and token behavior
+- Profile payload shape
+- Analysis report structure
+- Saved scan format
+- Current itemized ingredient analysis format
+
+Current redesign status snapshot
+
+Completed:
+- Dashboard redesign
+- Health profile onboarding redesign
+- Health profile desktop polish
+- Login / signup redesign
+- Final report redesign
+- Final report second-pass visual enhancement
+
+Still needs redesign in the same language:
+- Scan history
+- Loading / empty states
+- Insights screen
+
+Timeline and execution roadmap
+
+Phase 1: Brand and onboarding foundation
+Target:
+Completed or mostly completed
+
+Includes:
+- Login / signup
+- Dashboard
+- Health profile
+
+Success criteria:
+- Product feels premium and recognizable
+- User immediately understands the product
+- Onboarding feels polished
+
+Phase 2: Trust and core scan journey
+Target:
+Next highest priority
+
+Includes:
+- Scan capture refinement
+- OCR confirmation/edit screen redesign
+- Better loading and AI state feedback
+
+Success criteria:
+- User feels in control between scan and report
+- OCR step builds trust
+- Scan flow feels modern and smooth
+
+Recommended timeline:
+- OCR confirmation redesign: immediate next task
+- Scan capture refinement: same sprint or immediately after
+
+Phase 3: Report excellence
+Target:
+Ongoing refinement after the OCR step
+
+Includes:
+- Final report visual upgrade
+- Radar chart / richer report visuals
+- "Top 3 reasons" blocks
+- More animated insights
+
+Success criteria:
+- Report feels memorable and high-value
+- User can understand result in 5-10 seconds
+- Report feels share-worthy and product-grade
+
+Recommended timeline:
+- Continue iterating after OCR is redesigned
+
+Phase 4: Retention and long-term value
+Target:
+After core journey is polished
+
+Includes:
+- Scan history redesign
+- Insights screen
+- Compare products
+- Better dashboard intelligence
+
+Success criteria:
+- Product remains useful after first scan
+- Saved data becomes genuinely useful
+- Users can see patterns and progress
+
+Recommended timeline:
+- After the scan-to-report flow is visually consistent
+
+Phase 5: Differentiation features
+Target:
+Future enhancement phase
+
+Includes:
+- Barcode scan
+- Family profiles
+- Goal-based guidance
+- Smart alternatives
+- Comparison intelligence
+
+Success criteria:
+- Product clearly stands apart from generic label scanners
+- Feels like a serious startup-ready product
+
+Implementation priority order from this point
+
+1. OCR confirmation / edit screen
+2. Scan history redesign
+3. Insights screen
+4. Further final report visual enhancement
+5. Compare products
+6. Advanced dashboard intelligence
+
+Master creative prompt for future design / implementation work
+
+"Design InnerVerse as a premium global wellness-tech product that helps users scan packaged foods, understand labels, and get personalized nutrition guidance based on their health profile. The experience should feel warm, modern, intelligent, and trustworthy. Avoid cold minimalist tech aesthetics and avoid generic fitness-app design. Use strong visual hierarchy, soft warm backgrounds, vivid fresh green accent moments, clear typography, rounded premium cards, meaningful animation, and rich visual storytelling. Prioritize scan confidence, personalized guidance, easy interpretation, and a product-grade consumer experience across mobile and desktop."
+
+Final north star:
+InnerVerse should feel like the kind of product a global wellness startup would proudly ship: visual, useful, intelligent, calm, and deeply customer-centered.
