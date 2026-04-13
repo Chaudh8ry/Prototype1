@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5050'}/api`;
+const AUTH_EXPIRED_EVENT = 'innerverse:auth-expired';
 
 // Create axios instance
 const api = axios.create({
@@ -23,10 +24,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('innerverse_token');
-      localStorage.removeItem('innerverse_user');
-      window.location.href = '/login';
+    const requestUrl = error.config?.url || '';
+    const isAuthScreenRequest =
+      requestUrl.includes('/auth/login') || requestUrl.includes('/auth/register');
+
+    if (error.response?.status === 401 && !isAuthScreenRequest) {
+      clearAuthStorage();
+      window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
     }
     return Promise.reject(error);
   }
@@ -122,7 +126,7 @@ export const setAuthToken = (token) => {
   if (token) {
     localStorage.setItem('innerverse_token', token);
   } else {
-    localStorage.removeItem('innerverse_token');
+    clearAuthStorage();
   }
 };
 
@@ -134,7 +138,7 @@ export const setUser = (user) => {
   if (user) {
     localStorage.setItem('innerverse_user', JSON.stringify(user));
   } else {
-    localStorage.removeItem('innerverse_user');
+    clearAuthStorage();
   }
 };
 
@@ -144,8 +148,16 @@ export const getUser = () => {
 };
 
 export const logout = () => {
+  clearAuthStorage();
+};
+
+export const clearAuthStorage = () => {
   localStorage.removeItem('innerverse_token');
   localStorage.removeItem('innerverse_user');
+};
+
+export const AUTH_EVENTS = {
+  AUTH_EXPIRED_EVENT,
 };
 
 export default api;

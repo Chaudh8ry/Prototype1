@@ -10,6 +10,8 @@ const formatDay = (value) =>
     day: 'numeric',
   });
 
+const weekdayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
 const nutrientLabels = {
   sugar_g: 'Sugar',
   sodium_mg: 'Sodium',
@@ -217,6 +219,42 @@ const Insights = ({ onBack, activeProfileId, activeProfile }) => {
     };
   }, [insights]);
 
+  const goalStreak = insights?.goal_streak || {
+    current: 0,
+    best: 0,
+    this_week: 0,
+    last_match_at: null,
+    active_goal: activeProfile?.primary_goal || null,
+  };
+
+  const goalCalendar = insights?.goal_calendar || [];
+
+  const goalCalendarRows = useMemo(() => {
+    if (!goalCalendar.length) return [];
+
+    const rows = [];
+    for (let index = 0; index < goalCalendar.length; index += 7) {
+      rows.push(goalCalendar.slice(index, index + 7));
+    }
+    return rows;
+  }, [goalCalendar]);
+
+  const goalCalendarLegend = [
+    { label: 'No scan', tone: 'bg-[#e7e1d6]' },
+    { label: 'Missed goal', tone: 'bg-[#ffd9a8]' },
+    { label: '1 match', tone: 'bg-[#bdf2b8]' },
+    { label: '2 matches', tone: 'bg-[#63dc67]' },
+    { label: '3+ matches', tone: 'bg-[#177d32]' },
+  ];
+
+  const getCalendarTone = (intensity) => {
+    if (intensity === -1) return 'bg-[#ffd9a8] text-[#8b5a17]';
+    if (intensity === 1) return 'bg-[#bdf2b8] text-[#1f5e2f]';
+    if (intensity === 2) return 'bg-[#63dc67] text-[#11471f]';
+    if (intensity >= 3) return 'bg-[#177d32] text-white';
+    return 'bg-[#e7e1d6] text-[#8b8579]';
+  };
+
   const trendChart = useMemo(() => {
     const entries = metrics.byDay || [];
     if (!entries.length) return null;
@@ -306,7 +344,7 @@ const Insights = ({ onBack, activeProfileId, activeProfile }) => {
           </div>
         ) : (
           <>
-            <section className="mb-6 grid gap-4 md:grid-cols-3">
+            <section className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-[28px] bg-white px-6 py-5 shadow-[0_18px_40px_rgba(56,78,61,0.10)]">
                 <p className="text-xs uppercase tracking-[0.18em] text-[#8b8579]">
                   Average fit score
@@ -388,6 +426,33 @@ const Insights = ({ onBack, activeProfileId, activeProfile }) => {
                     We couldn&apos;t find a latest scan.
                   </p>
                 )}
+              </div>
+
+              <div className="rounded-[28px] bg-white px-6 py-5 shadow-[0_18px_40px_rgba(56,78,61,0.10)]">
+                <p className="text-xs uppercase tracking-[0.18em] text-[#8b8579]">
+                  Goal match streak
+                </p>
+                <div className="mt-3 flex items-end justify-between">
+                  <p className="text-3xl font-semibold text-[#171717]">
+                    {goalStreak.current}
+                  </p>
+                  <span className="rounded-full bg-[#ecffe8] px-3 py-1 text-xs font-medium text-[#2f7a38]">
+                    Best {goalStreak.best}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm text-[#5f5f5f]">
+                  {goalStreak.active_goal
+                    ? `Consecutive saved scans matching ${goalStreak.active_goal}.`
+                    : 'Save goal-aligned scans to start your streak.'}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                  <span className="rounded-full bg-[#f7f5f0] px-3 py-1 font-medium text-[#4f4b45]">
+                    This week: {goalStreak.this_week}
+                  </span>
+                  <span className="rounded-full bg-[#f7f5f0] px-3 py-1 font-medium text-[#4f4b45]">
+                    Last match: {goalStreak.last_match_at ? new Date(goalStreak.last_match_at).toLocaleDateString() : '—'}
+                  </span>
+                </div>
               </div>
             </section>
 
@@ -530,6 +595,125 @@ const Insights = ({ onBack, activeProfileId, activeProfile }) => {
                   </p>
                 )}
               </div>
+            </section>
+
+            <section className="mb-6 rounded-[32px] bg-[linear-gradient(135deg,#ecffe8_0%,#f9fff7_100%)] px-6 py-6 shadow-[0_20px_50px_rgba(56,78,61,0.08)]">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-[#8b8579]">
+                    Consistency
+                  </p>
+                  <h2
+                    className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#171717]"
+                    style={{ fontFamily: "'Lexend', 'Inter', sans-serif" }}
+                  >
+                    Goal-match streak tracker
+                  </h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-7 text-[#556258]">
+                    A streak grows when each new saved scan scores at least 70/100 against your active health goal.
+                  </p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-[24px] bg-white px-5 py-4">
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-[#8b8579]">Current</p>
+                    <p className="mt-2 text-3xl font-semibold text-[#171717]">{goalStreak.current}</p>
+                  </div>
+                  <div className="rounded-[24px] bg-white px-5 py-4">
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-[#8b8579]">Best</p>
+                    <p className="mt-2 text-3xl font-semibold text-[#171717]">{goalStreak.best}</p>
+                  </div>
+                  <div className="rounded-[24px] bg-white px-5 py-4">
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-[#8b8579]">This week</p>
+                    <p className="mt-2 text-3xl font-semibold text-[#171717]">{goalStreak.this_week}</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="mb-6 rounded-[32px] bg-white px-6 py-6 shadow-[0_20px_50px_rgba(56,78,61,0.08)]">
+              <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-[#8b8579]">
+                    Goal consistency calendar
+                  </p>
+                  <h2
+                    className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#171717]"
+                    style={{ fontFamily: "'Lexend', 'Inter', sans-serif" }}
+                  >
+                    Your last 35 days at a glance
+                  </h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-7 text-[#5f5f5f]">
+                    Green days continued your goal-match momentum. Amber days mean you scanned something, but it did not meet the goal threshold.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {goalCalendarLegend.map((item) => (
+                    <span
+                      key={item.label}
+                      className="inline-flex items-center rounded-full bg-[#f7f5f0] px-3 py-2 text-xs font-medium text-[#4f4b45]"
+                    >
+                      <span className={`mr-2 h-3 w-3 rounded-sm ${item.tone}`} />
+                      {item.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {goalCalendarRows.length ? (
+                <div className="overflow-x-auto">
+                  <div className="min-w-[760px]">
+                    <div className="mb-3 grid grid-cols-[72px_repeat(7,minmax(0,1fr))] gap-2">
+                      <div />
+                      {weekdayLabels.map((day) => (
+                        <div
+                          key={day}
+                          className="px-1 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8b8579]"
+                        >
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="space-y-2">
+                      {goalCalendarRows.map((row, rowIndex) => (
+                        <div
+                          key={`goal-row-${rowIndex}`}
+                          className="grid grid-cols-[72px_repeat(7,minmax(0,1fr))] gap-2"
+                        >
+                          <div className="flex items-center px-1 text-xs font-medium text-[#8b8579]">
+                            {formatDay(row[0]?.date)}
+                          </div>
+                          {row.map((entry) => (
+                            <div
+                              key={entry.date}
+                              title={`${formatDay(entry.date)} • ${entry.matches} goal match${entry.matches === 1 ? '' : 'es'} • ${entry.scans} scan${entry.scans === 1 ? '' : 's'}${entry.avg_score !== null ? ` • Avg ${entry.avg_score}/100` : ''}`}
+                              className={`rounded-[14px] border border-white/60 px-3 py-3 shadow-[0_8px_18px_rgba(56,78,61,0.06)] ${getCalendarTone(entry.intensity)}`}
+                            >
+                              <div className="text-xs font-semibold">
+                                {new Date(entry.date).getDate()}
+                              </div>
+                              <div className="mt-2 text-[11px] leading-4 opacity-90">
+                                {entry.scans ? `${entry.matches}/${entry.scans} match` : 'No scan'}
+                              </div>
+                            </div>
+                          ))}
+                          {row.length < 7 &&
+                            Array.from({ length: 7 - row.length }).map((_, emptyIndex) => (
+                              <div
+                                key={`empty-${rowIndex}-${emptyIndex}`}
+                                className="rounded-[14px] bg-transparent"
+                              />
+                            ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-[24px] bg-[#f7f5f0] px-5 py-8 text-sm leading-7 text-[#5f5f5f]">
+                  Save more scans to populate your goal consistency calendar.
+                </div>
+              )}
             </section>
 
             <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

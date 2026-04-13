@@ -75,11 +75,264 @@ const getNumericNutritionFromTable = (nutritionTable = {}) => {
   };
 };
 
+const startOfLocalDay = (value) => {
+  const date = new Date(value);
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
+const formatLocalDateKey = (value) => {
+  const date = new Date(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const computeGoalStreaks = (scans = []) => {
+  const scoredScans = scans
+    .map((scan) => {
+      const goalAlignment =
+        scan.analysis_result?.overall_profile?.goal_alignment ||
+        scan.analysis_result?.goal_alignment ||
+        null;
+      const score = Number(goalAlignment?.score);
+      return {
+        scan_date: scan.scan_date,
+        product_name: scan.product_name,
+        goal: goalAlignment?.goal || null,
+        matched: Number.isFinite(score) && score >= 70,
+        score: Number.isFinite(score) ? score : null,
+      };
+    })
+    .filter((scan) => scan.goal && scan.score !== null)
+    .sort((a, b) => new Date(a.scan_date) - new Date(b.scan_date));
+
+  if (!scoredScans.length) {
+    return {
+      current: 0,
+      best: 0,
+      this_week: 0,
+      last_match_at: null,
+      active_goal: null,
+    };
+  }
+
+  let best = 0;
+  let running = 0;
+
+  scoredScans.forEach((scan) => {
+    if (scan.matched) {
+      running += 1;
+      if (running > best) best = running;
+    } else {
+      running = 0;
+    }
+  });
+
+  let current = 0;
+  let lastMatchAt = null;
+  for (let index = scoredScans.length - 1; index >= 0; index -= 1) {
+    if (!scoredScans[index].matched) break;
+    current += 1;
+    lastMatchAt = lastMatchAt || scoredScans[index].scan_date;
+  }
+
+  const now = new Date();
+  const weekStart = startOfLocalDay(now);
+  weekStart.setDate(weekStart.getDate() - 6);
+
+  const thisWeek = scoredScans.filter(
+    (scan) => scan.matched && startOfLocalDay(scan.scan_date) >= weekStart,
+  ).length;
+
+  return {
+    current,
+    best,
+    this_week: thisWeek,
+    last_match_at: lastMatchAt,
+    active_goal: scoredScans[scoredScans.length - 1]?.goal || null,
+  };
+};
+
+const buildGoalCalendar = (scans = [], days = 35) => {
+  const today = startOfLocalDay(new Date());
+  const start = new Date(today);
+  start.setDate(start.getDate() - (days - 1));
+
+  const dayMap = new Map();
+
+  scans.forEach((scan) => {
+    const day = startOfLocalDay(scan.scan_date);
+    if (day < start || day > today) return;
+
+    const key = formatLocalDateKey(day);
+    const goalAlignment =
+      scan.analysis_result?.overall_profile?.goal_alignment ||
+      scan.analysis_result?.goal_alignment ||
+      null;
+    const score = Number(goalAlignment?.score);
+    const matched = Number.isFinite(score) && score >= 70;
+
+    const existing = dayMap.get(key) || {
+      date: key,
+      scans: 0,
+      matches: 0,
+      misses: 0,
+      goal: goalAlignment?.goal || null,
+      score_sum: 0,
+      score_count: 0,
+    };
+
+    existing.scans += 1;
+    if (Number.isFinite(score)) {
+      existing.score_sum += score;
+      existing.score_count += 1;
+      if (matched) existing.matches += 1;
+      else existing.misses += 1;
+    }
+    if (!existing.goal && goalAlignment?.goal) {
+      existing.goal = goalAlignment.goal;
+    }
+
+    dayMap.set(key, existing);
+  });
+
+  const entries = [];
+  for (let offset = 0; offset < days; offset += 1) {
+    const date = new Date(start);
+    date.setDate(start.getDate() + offset);
+    const key = formatLocalDateKey(date);
+    const existing = dayMap.get(key);
+
+    const intensity = existing
+      ? existing.matches >= 3
+        ? 3
+        : existing.matches >= 2
+          ? 2
+          : existing.matches >= 1
+            ? 1
+            : existing.scans > 0
+              ? -1
+              : 0
+      : 0;
+
+    entries.push({
+      date: key,
+      scans: existing?.scans || 0,
+      matches: existing?.matches || 0,
+      misses: existing?.misses || 0,
+      avg_score:
+        existing?.score_count
+          ? Math.round(existing.score_sum / existing.score_count)
+          : null,
+      intensity,
+      goal: existing?.goal || null,
+    });
+  }
+
+  return entries;
+};
+
 const getConditionNames = (healthProfile) =>
   (healthProfile.health_conditions || [])
     .map((item) => item?.condition)
     .filter(Boolean)
     .map((item) => item.toLowerCase());
+
+const buildGoalAlignment = (healthProfile, normalizedNutrition) => {
+  const goal = String(healthProfile.primary_goal || '').trim();
+  if (!goal) return null;
+
+  const normalizedGoal = goal.toLowerCase();
+  const sugar = normalizedNutrition.sugar_g || 0;
+  const sodium = normalizedNutrition.sodium_mg || 0;
+  const protein = normalizedNutrition.protein_g || 0;
+  const fiber = normalizedNutrition.fiber_g || 0;
+  const fat = normalizedNutrition.fat_g || 0;
+
+  const buildResult = (score, summary, recommendation) => ({
+    goal,
+    score: Math.max(15, Math.min(98, Math.round(score))),
+    label: score >= 75 ? 'Strong match' : score >= 50 ? 'Partial match' : 'Weak match',
+    summary,
+    recommendation,
+  });
+
+  if (normalizedGoal === 'weight loss') {
+    return buildResult(
+      70 + (fiber >= 3 ? 8 : -6) + (sugar <= 8 ? 8 : sugar >= 15 ? -12 : -4) + (fat <= 12 ? 5 : fat >= 18 ? -8 : -2),
+      sugar <= 8 && fiber >= 3
+        ? 'This product supports your weight loss goal with a lighter sugar profile and some fiber for fullness.'
+        : 'This product is only a partial fit for weight loss because the nutrition balance is not especially light.',
+      sugar >= 15 || fat >= 18
+        ? `Watch out for${sugar >= 15 ? ` sugar (${sugar}g)` : ''}${sugar >= 15 && fat >= 18 ? ' and' : ''}${fat >= 18 ? ` fat (${fat}g)` : ''}.`
+        : 'Look for products with low sugar and better fiber to keep building a stronger pattern.',
+    );
+  }
+
+  if (normalizedGoal === 'muscle gain') {
+    return buildResult(
+      64 + (protein >= 10 ? 18 : protein >= 6 ? 8 : -12) + (sugar <= 12 ? 4 : -6),
+      protein >= 10
+        ? 'This product supports your muscle gain goal with a stronger protein contribution.'
+        : 'This product is only a moderate fit for muscle gain because the protein signal is limited.',
+      protein >= 10
+        ? 'Pair it with balanced meals across the day to keep protein intake consistent.'
+        : 'Look for options with at least 10g protein per serving for a better match.',
+    );
+  }
+
+  if (normalizedGoal === 'low sugar') {
+    return buildResult(
+      86 - (sugar >= 20 ? 36 : sugar >= 12 ? 22 : sugar >= 6 ? 8 : 0) + (fiber >= 3 ? 4 : 0),
+      sugar <= 5
+        ? 'This product fits a low sugar goal well based on the captured label values.'
+        : `This product pushes against your low sugar goal because it contains about ${sugar}g sugar.`,
+      sugar <= 5
+        ? 'This is the kind of sugar range you would want to repeat more often.'
+        : 'Try products under 5g sugar per serving for a cleaner goal match.',
+    );
+  }
+
+  if (normalizedGoal === 'low sodium') {
+    return buildResult(
+      86 - (sodium >= 700 ? 42 : sodium >= 400 ? 28 : sodium >= 200 ? 12 : 0),
+      sodium <= 140
+        ? 'This product is a strong fit for a low sodium goal.'
+        : `This product may work against your low sodium goal because it contains about ${sodium}mg sodium.`,
+      sodium <= 140
+        ? 'A low-sodium pattern like this can help maintain better long-term choices.'
+        : 'Try to stay closer to 140mg sodium or lower per serving when possible.',
+    );
+  }
+
+  if (normalizedGoal === 'high protein') {
+    return buildResult(
+      62 + (protein >= 12 ? 20 : protein >= 8 ? 10 : -10) + (sugar <= 10 ? 4 : -4),
+      protein >= 8
+        ? `This product contributes reasonably well to a high protein goal with about ${protein}g protein.`
+        : 'This product is not a strong high-protein option based on the captured label.',
+      protein >= 12
+        ? 'This is a good profile to compare against similar products in the same category.'
+        : 'Look for products with 10-12g protein or more for a clearer advantage.',
+    );
+  }
+
+  if (normalizedGoal === 'clean eating') {
+    return buildResult(
+      70 + (sugar <= 8 ? 6 : -8) + (sodium <= 200 ? 6 : -8) + (fiber >= 3 ? 4 : 0),
+      'This goal match is estimated from the product nutrition balance and your saved profile.',
+      'For clean eating, prefer simpler labels, lower sugar and sodium, and better fiber when possible.',
+    );
+  }
+
+  return buildResult(
+    60,
+    `This scan was checked against your goal: ${goal}.`,
+    'Add more specific goal notes in your profile for sharper guidance.',
+  );
+};
 
 const computeScores = (healthProfile, analysisResult, normalizedNutrition) => {
   const aiOverallRating = analysisResult?.overall_profile?.overall_rating || 'Unknown';
@@ -126,6 +379,7 @@ const computeScores = (healthProfile, analysisResult, normalizedNutrition) => {
   const dietaryPreferences = (healthProfile.dietary_preferences || []).map((item) =>
     String(item).toLowerCase(),
   );
+  const primaryGoal = String(healthProfile.primary_goal || '').toLowerCase();
 
   const sugar = normalizedNutrition.sugar_g || 0;
   const sodium = normalizedNutrition.sodium_mg || 0;
@@ -158,7 +412,8 @@ const computeScores = (healthProfile, analysisResult, normalizedNutrition) => {
 
   if (
     dietaryPreferences.some((item) => /high protein|muscle|fitness/.test(item)) ||
-    additionalInfo.includes('muscle')
+    additionalInfo.includes('muscle') ||
+    /muscle gain|high protein/.test(primaryGoal)
   ) {
     if (protein >= 10) personalFitScore += 6;
     if (protein < 5) personalFitScore -= 4;
@@ -166,7 +421,8 @@ const computeScores = (healthProfile, analysisResult, normalizedNutrition) => {
 
   if (
     dietaryPreferences.some((item) => /weight loss|low sugar|low sodium/.test(item)) ||
-    additionalInfo.includes('weight loss')
+    additionalInfo.includes('weight loss') ||
+    /weight loss|low sugar|low sodium/.test(primaryGoal)
   ) {
     if (sugar >= 12) personalFitScore -= 6;
     if (sodium >= 300) personalFitScore -= 5;
@@ -353,10 +609,12 @@ router.post('/analyze-ingredients', auth, async (req, res) => {
       analysisResult,
       normalized_nutrition,
     );
+    const goalAlignment = buildGoalAlignment(healthProfile, normalized_nutrition);
 
     analysisResult.overall_profile = {
       ...analysisResult.overall_profile,
       ...computedScores,
+      goal_alignment: goalAlignment,
     };
 
     // Step 5: Prepare Final Report
@@ -383,6 +641,7 @@ router.post('/analyze-ingredients', auth, async (req, res) => {
         profile_name: healthProfile.profile_name,
         relationship: healthProfile.relationship,
         age_group: healthProfile.age_group,
+        primary_goal: healthProfile.primary_goal || '',
         allergies_count: healthProfile.allergies?.length || 0,
         conditions_count: healthProfile.health_conditions?.length || 0,
         preferences_count: healthProfile.dietary_preferences?.length || 0
@@ -588,6 +847,8 @@ router.get('/insights', auth, async (req, res) => {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([label, count]) => ({ label, count }));
+    const goalStreak = computeGoalStreaks(scans);
+    const goalCalendar = buildGoalCalendar(scans);
 
     res.json({
       total_scans: scans.length,
@@ -602,6 +863,8 @@ router.get('/insights', auth, async (req, res) => {
       score_over_time: scoreOverTime,
       nutrient_trends: nutrientTrends,
       top_concerns: topConcerns,
+      goal_streak: goalStreak,
+      goal_calendar: goalCalendar,
       latest_scan: scans[scans.length - 1] || null,
     });
   } catch (error) {

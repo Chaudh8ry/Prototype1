@@ -51,6 +51,12 @@ const healthProfileSchema = new mongoose.Schema({
   dietary_preferences: [{
     type: String
   }],
+  primary_goal: {
+    type: String,
+    trim: true,
+    maxlength: 120,
+    default: ''
+  },
   additional_info: {
     type: String,
     maxlength: 2000

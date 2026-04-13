@@ -71,6 +71,7 @@ router.post('/', auth, async (req, res) => {
       custom_allergy,
       health_conditions,
       dietary_preferences,
+      primary_goal,
       additional_info,
       body_metrics,
       activity_level,
@@ -102,6 +103,7 @@ router.post('/', auth, async (req, res) => {
       custom_allergy: custom_allergy || '',
       health_conditions: health_conditions || [],
       dietary_preferences: dietary_preferences || [],
+      primary_goal: primary_goal?.trim() || '',
       additional_info: additional_info || '',
       activity_level,
       body_metrics: {

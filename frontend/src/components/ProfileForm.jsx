@@ -138,10 +138,44 @@ const commonAllergies = [
   'Other',
 ];
 
+const healthGoals = [
+  {
+    value: 'Weight loss',
+    label: 'Weight loss',
+    description: 'Favor lighter products with controlled sugar and better fullness signals.',
+  },
+  {
+    value: 'Muscle gain',
+    label: 'Muscle gain',
+    description: 'Prefer stronger protein contribution and better workout support.',
+  },
+  {
+    value: 'Low sugar',
+    label: 'Low sugar',
+    description: 'Prioritize products with lower sugar and steadier nutrition signals.',
+  },
+  {
+    value: 'Low sodium',
+    label: 'Low sodium',
+    description: 'Prefer lower-salt choices that support blood pressure-friendly habits.',
+  },
+  {
+    value: 'High protein',
+    label: 'High protein',
+    description: 'Surface products that deliver more useful protein per serving.',
+  },
+  {
+    value: 'Clean eating',
+    label: 'Clean eating',
+    description: 'Lean toward simpler, better-balanced packaged food choices.',
+  },
+];
+
 const steps = [
   { id: 'identity', label: 'Profile' },
   { id: 'basics', label: 'Basics' },
   { id: 'metrics', label: 'Body' },
+  { id: 'goals', label: 'Goal' },
   { id: 'conditions', label: 'Conditions' },
   { id: 'allergies', label: 'Allergies' },
   { id: 'notes', label: 'Notes' },
@@ -163,6 +197,7 @@ const ProfileForm = ({ onBack, onProfileSaved, existingProfile = null, profiles 
   });
   const [allergies, setAllergies] = useState([]);
   const [customAllergy, setCustomAllergy] = useState('');
+  const [primaryGoal, setPrimaryGoal] = useState('');
   const [additionalInfo, setAdditionalInfo] = useState('');
   const [bodyMetrics, setBodyMetrics] = useState({
     height: '',
@@ -188,6 +223,7 @@ const ProfileForm = ({ onBack, onProfileSaved, existingProfile = null, profiles 
       setProfileId(null);
       setProfileName('');
       setRelationship('Self');
+      setPrimaryGoal('');
     }
   }, [existingProfile]);
 
@@ -199,6 +235,7 @@ const ProfileForm = ({ onBack, onProfileSaved, existingProfile = null, profiles 
     setSelectedActivityLevel(profile.activity_level || '');
     setAllergies(profile.allergies || []);
     setCustomAllergy(profile.custom_allergy || '');
+    setPrimaryGoal(profile.primary_goal || '');
     setAdditionalInfo(profile.additional_info || '');
 
     if (profile.body_metrics) {
@@ -242,11 +279,12 @@ const ProfileForm = ({ onBack, onProfileSaved, existingProfile = null, profiles 
       Boolean(profileName.trim()),
       Boolean(selectedAge && selectedActivityLevel),
       Boolean(bodyMetrics.height && bodyMetrics.weight),
+      Boolean(primaryGoal),
       Boolean(conditionCount),
       Boolean(allergies.length),
       Boolean(additionalInfo.trim()),
     ];
-  }, [selectedAge, selectedActivityLevel, bodyMetrics, nutritionConditions, allergies, additionalInfo]);
+  }, [profileName, selectedAge, selectedActivityLevel, bodyMetrics, primaryGoal, nutritionConditions, allergies, additionalInfo]);
 
   const completionPercent = Math.round(
     (completedSteps.filter(Boolean).length / completedSteps.length) * 100
@@ -290,6 +328,7 @@ const ProfileForm = ({ onBack, onProfileSaved, existingProfile = null, profiles 
     });
     setAllergies([]);
     setCustomAllergy('');
+    setPrimaryGoal('');
     setAdditionalInfo('');
     setBodyMetrics({
       height: '',
@@ -388,7 +427,8 @@ const ProfileForm = ({ onBack, onProfileSaved, existingProfile = null, profiles 
         allergies,
         custom_allergy: allergies.includes('Other') ? customAllergy.trim() : '',
         health_conditions: healthConditions,
-        dietary_preferences: [],
+        dietary_preferences: primaryGoal ? [primaryGoal] : [],
+        primary_goal: primaryGoal,
         additional_info: additionalInfo,
         body_metrics: bodyMetrics,
       };
@@ -427,6 +467,10 @@ const ProfileForm = ({ onBack, onProfileSaved, existingProfile = null, profiles 
     {
       label: 'Activity',
       value: selectedActivityLevel || 'Not selected',
+    },
+    {
+      label: 'Primary goal',
+      value: primaryGoal || 'Not selected',
     },
     {
       label: 'Conditions',
@@ -507,7 +551,7 @@ const ProfileForm = ({ onBack, onProfileSaved, existingProfile = null, profiles 
               </div>
             </div>
 
-            <div className="mt-7 grid gap-3 sm:grid-cols-6">
+            <div className="mt-7 grid gap-3 sm:grid-cols-3 xl:grid-cols-7">
               {steps.map((step, index) => (
                 <div
                   key={step.id}
@@ -844,6 +888,48 @@ const ProfileForm = ({ onBack, onProfileSaved, existingProfile = null, profiles 
             </section>
 
             <section className="rounded-[32px] bg-white p-6 shadow-[0_20px_50px_rgba(56,78,61,0.08)] sm:p-8 lg:p-10">
+              <div className="mb-6 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef9eb]">
+                  <Sparkles className="h-6 w-6 text-[#2f7a38]" />
+                </div>
+                <div>
+                  <h2
+                    className="text-2xl font-semibold tracking-[-0.03em] text-[#171717]"
+                    style={{ fontFamily: "'Lexend', 'Inter', sans-serif" }}
+                  >
+                    Step 3. Health goal
+                  </h2>
+                  <p className="text-sm text-[#6a6a6a]">Choose the main outcome you want scans to optimize for.</p>
+                </div>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {healthGoals.map((goal) => {
+                  const selected = primaryGoal === goal.value;
+                  return (
+                    <button
+                      key={goal.value}
+                      type="button"
+                      onClick={() => setPrimaryGoal(goal.value)}
+                      className={`rounded-[24px] border p-4 text-left transition ${
+                        selected
+                          ? 'border-[#20dc18] bg-[#f1ffee] shadow-[0_14px_28px_rgba(31,220,24,0.10)]'
+                          : 'border-[#e8e1d4] bg-[#fcfbf8] hover:border-[#d8d1c5]'
+                      }`}
+                    >
+                      <p className="text-base font-semibold text-[#171717]">{goal.label}</p>
+                      <p className="mt-2 text-sm leading-6 text-[#666666]">{goal.description}</p>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-5 rounded-[22px] bg-[linear-gradient(135deg,#ecffe8_0%,#f9fff7_100%)] px-4 py-4 text-sm leading-6 text-[#546256]">
+                Your selected goal becomes part of the personalized scan score, so the app can explain whether a product fits what you are trying to achieve.
+              </div>
+            </section>
+
+            <section className="rounded-[32px] bg-white p-6 shadow-[0_20px_50px_rgba(56,78,61,0.08)] sm:p-8 lg:p-10">
               <div className="mb-6 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f3ecff]">
@@ -854,7 +940,7 @@ const ProfileForm = ({ onBack, onProfileSaved, existingProfile = null, profiles 
                       className="text-2xl font-semibold tracking-[-0.03em] text-[#171717]"
                       style={{ fontFamily: "'Lexend', 'Inter', sans-serif" }}
                     >
-                      Step 3. Health conditions and preferences
+                      Step 4. Health conditions and preferences
                     </h2>
                     <p className="text-sm text-[#6a6a6a]">Why we ask this: the right warnings depend on your real health context, not generic rules.</p>
                   </div>
@@ -937,7 +1023,7 @@ const ProfileForm = ({ onBack, onProfileSaved, existingProfile = null, profiles 
                       className="text-2xl font-semibold tracking-[-0.03em] text-[#171717]"
                       style={{ fontFamily: "'Lexend', 'Inter', sans-serif" }}
                     >
-                      Step 4. Allergies and intolerances
+                      Step 5. Allergies and intolerances
                     </h2>
                     <p className="text-sm text-[#6a6a6a]">Why we ask this: these should always be flagged first in a scan.</p>
                   </div>
@@ -1007,7 +1093,7 @@ const ProfileForm = ({ onBack, onProfileSaved, existingProfile = null, profiles 
                       className="text-2xl font-semibold tracking-[-0.03em] text-[#171717]"
                       style={{ fontFamily: "'Lexend', 'Inter', sans-serif" }}
                     >
-                      Step 5. Additional context
+                      Step 6. Additional context
                     </h2>
                     <p className="text-sm text-[#6a6a6a]">Optional notes, medications, goals, or anything we should keep in mind.</p>
                   </div>

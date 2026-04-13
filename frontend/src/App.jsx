@@ -8,7 +8,7 @@ import AnalysisReport from './components/AnalysisReport';
 import ScanHistory from './components/ScanHistory';
 import Insights from './components/Insights';
 import CompareProducts from './components/CompareProducts';
-import { getAuthToken, getUser, authAPI, profileAPI } from './services/api';
+import { getAuthToken, getUser, authAPI, profileAPI, clearAuthStorage, AUTH_EVENTS } from './services/api';
 
 function App() {
   const [currentView, setCurrentView] = useState('loading');
@@ -23,14 +23,35 @@ function App() {
     initializeApp();
   }, []);
 
+  useEffect(() => {
+    const handleAuthExpired = () => {
+      setUser(null);
+      setUserProfile(null);
+      setProfiles([]);
+      setActiveProfileId(null);
+      setAnalysisData(null);
+      setCompareData(null);
+      setCurrentView('login');
+    };
+
+    window.addEventListener(AUTH_EVENTS.AUTH_EXPIRED_EVENT, handleAuthExpired);
+    return () => {
+      window.removeEventListener(AUTH_EVENTS.AUTH_EXPIRED_EVENT, handleAuthExpired);
+    };
+  }, []);
+
   const initializeApp = async () => {
     const token = getAuthToken();
     const savedUser = getUser();
 
     if (token && savedUser) {
       try {
+        const timeoutPromise = new Promise((_, reject) => {
+          window.setTimeout(() => reject(new Error('Auth check timed out')), 12000);
+        });
+
         // Verify token is still valid and get fresh user data
-        const response = await authAPI.getCurrentUser();
+        const response = await Promise.race([authAPI.getCurrentUser(), timeoutPromise]);
         const userData = response.data.user;
         
         setUser(userData);
@@ -47,7 +68,7 @@ function App() {
         setCurrentView('scanner');
       } catch (error) {
         console.error('Token validation failed:', error);
-        // Token is invalid, show login
+        clearAuthStorage();
         setCurrentView('login');
       }
     } else {

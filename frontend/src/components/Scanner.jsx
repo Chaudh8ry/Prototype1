@@ -45,6 +45,7 @@ const Scanner = ({ user, profiles = [], activeProfile = null, canManageFamily = 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [recentScans, setRecentScans] = useState([]);
+  const [insightsSummary, setInsightsSummary] = useState(null);
   const [activeScanIndex, setActiveScanIndex] = useState(0);
   const carouselRef = useRef(null);
 
@@ -54,8 +55,12 @@ const Scanner = ({ user, profiles = [], activeProfile = null, canManageFamily = 
 
   const loadRecentScans = async () => {
     try {
-      const response = await scansAPI.getScans(activeProfile?._id || null);
-      setRecentScans(response.data.scans || []);
+      const [scansResponse, insightsResponse] = await Promise.all([
+        scansAPI.getScans(activeProfile?._id || null),
+        analysisAPI.getInsights(activeProfile?._id || null),
+      ]);
+      setRecentScans(scansResponse.data.scans || []);
+      setInsightsSummary(insightsResponse.data || null);
     } catch (loadError) {
       console.error('Load recent scans error:', loadError);
     }
@@ -85,8 +90,12 @@ const Scanner = ({ user, profiles = [], activeProfile = null, canManageFamily = 
       avgScore: sumScore ? (sumScore / total).toFixed(1) : null,
       healthyShare: Math.round((healthies / total) * 100),
       latestRating,
+      goalStreak: insightsSummary?.goal_streak?.current || 0,
+      bestGoalStreak: insightsSummary?.goal_streak?.best || 0,
+      weeklyGoalMatches: insightsSummary?.goal_streak?.this_week || 0,
+      activeGoal: insightsSummary?.goal_streak?.active_goal || activeProfile?.primary_goal || null,
     };
-  }, [recentScans]);
+  }, [recentScans, insightsSummary, activeProfile?.primary_goal]);
 
   const activeTip = useMemo(() => {
     if (!recentScans.length) {
@@ -436,7 +445,7 @@ const Scanner = ({ user, profiles = [], activeProfile = null, canManageFamily = 
               )}
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-[28px] bg-white p-5 shadow-[0_16px_36px_rgba(56,78,61,0.08)]">
                 <p className="text-xs uppercase tracking-[0.18em] text-[#8b8579]">
                   Saved scans
@@ -500,6 +509,26 @@ const Scanner = ({ user, profiles = [], activeProfile = null, canManageFamily = 
                 <p className="mt-2 text-xs text-[#6a6a6a]">
                   Portion of your saved scans rated <span className="font-semibold">Healthy</span>.
                 </p>
+              </div>
+
+              <div className="rounded-[28px] bg-[linear-gradient(135deg,#ecffe8_0%,#f9fff7_100%)] p-5 shadow-[0_16px_36px_rgba(56,78,61,0.08)]">
+                <p className="text-xs uppercase tracking-[0.18em] text-[#8b8579]">
+                  Goal match streak
+                </p>
+                <p className="mt-3 text-4xl font-semibold tracking-[-0.03em] text-[#121212]">
+                  {dashboardMetrics.goalStreak}
+                </p>
+                <p className="mt-2 text-xs text-[#56635a]">
+                  Consecutive saved scans matching {dashboardMetrics.activeGoal || 'your goal'}.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#2f7a38]">
+                    Best {dashboardMetrics.bestGoalStreak}
+                  </span>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#2f7a38]">
+                    This week {dashboardMetrics.weeklyGoalMatches}
+                  </span>
+                </div>
               </div>
             </div>
           </section>

@@ -52,6 +52,13 @@ const AnalysisReport = ({ report, onBack, onNewAnalysis, activeProfileId }) => {
   const nutritionTable = report.nutrition_table_data || {};
   const rating = overallProfile.overall_rating || 'Unknown';
   const tone = scoreTone[rating] || scoreTone.Unknown;
+  const goalAlignment = overallProfile.goal_alignment || null;
+  const goalTone =
+    (goalAlignment?.score ?? 0) >= 75
+      ? 'bg-[#efffec] text-[#2f7a38]'
+      : (goalAlignment?.score ?? 0) >= 50
+        ? 'bg-[#fff7dd] text-[#8b6a00]'
+        : 'bg-[#fff0ec] text-[#b24336]';
 
   const chartSegments = useMemo(() => {
     const data = report.ingredient_profile_data || {};
@@ -352,7 +359,7 @@ const AnalysisReport = ({ report, onBack, onNewAnalysis, activeProfileId }) => {
                     </div>
                     <div className="rounded-[24px] bg-white px-5 py-4 shadow-[0_10px_24px_rgba(56,78,61,0.06)]">
                       <p className="text-xs uppercase tracking-[0.18em] text-[#8a857b]">Profile fit</p>
-                      <p className="mt-2 text-2xl font-semibold text-[#171717]">Personalized</p>
+                      <p className="mt-2 text-2xl font-semibold text-[#171717]">{goalAlignment?.goal || 'Personalized'}</p>
                     </div>
                   </div>
 
@@ -415,6 +422,26 @@ const AnalysisReport = ({ report, onBack, onNewAnalysis, activeProfileId }) => {
                   </div>
 
                   <div className="grid gap-4 lg:grid-cols-2">
+                    {goalAlignment && (
+                      <div className="rounded-[28px] bg-white px-5 py-5 shadow-[0_12px_28px_rgba(56,78,61,0.08)]">
+                        <div className="mb-3 flex items-center gap-2">
+                          <Sparkles className="h-4 w-4 text-[#18df13]" />
+                          <p className="text-sm font-semibold text-[#171717]">Goal match</p>
+                        </div>
+                        <div className="mb-3 flex flex-wrap items-center gap-2">
+                          <span className="rounded-full bg-[#f4f8f2] px-3 py-1 text-xs font-semibold text-[#45624c]">
+                            {goalAlignment.goal}
+                          </span>
+                          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${goalTone}`}>
+                            {goalAlignment.label} · {goalAlignment.score}/100
+                          </span>
+                        </div>
+                        <p className="text-sm leading-7 text-[#595959]">
+                          {goalAlignment.summary}
+                        </p>
+                      </div>
+                    )}
+
                     <div className="rounded-[28px] bg-white px-5 py-5 shadow-[0_12px_28px_rgba(56,78,61,0.08)]">
                       <div className="mb-3 flex items-center gap-2">
                         <Shield className="h-4 w-4 text-[#2f7a38]" />
@@ -435,6 +462,18 @@ const AnalysisReport = ({ report, onBack, onNewAnalysis, activeProfileId }) => {
                       </p>
                     </div>
                   </div>
+
+                  {goalAlignment?.recommendation && (
+                    <div className="rounded-[28px] bg-[linear-gradient(135deg,#efffec_0%,#f9fff7_100%)] px-5 py-5 shadow-[0_12px_28px_rgba(56,78,61,0.08)]">
+                      <div className="mb-3 flex items-center gap-2">
+                        <Lightbulb className="h-4 w-4 text-[#f59e0b]" />
+                        <p className="text-sm font-semibold text-[#171717]">Goal-based recommendation</p>
+                      </div>
+                      <p className="text-sm leading-7 text-[#595959]">
+                        {goalAlignment.recommendation}
+                      </p>
+                    </div>
+                  )}
 
                   {topReasons.length > 0 && (
                     <div className="rounded-[28px] bg-white px-5 py-5 shadow-[0_12px_28px_rgba(56,78,61,0.08)]">
