@@ -858,48 +858,6 @@ Some limitations still remain:
 - the project currently has limited automated testing
 - date/time analytics are frontend-visible but still prototype-level in sophistication
 
-## 21. Future Improvements
-
-There are many strong directions for extension:
-
-### Scoring Improvements
-
-- convert heuristic scoring into a more formal weighted model
-- add clearer published scoring formula in-app
-- calibrate thresholds using domain feedback
-
-### Product Improvements
-
-- barcode support
-- category-aware product comparison
-- smarter alternative recommendations
-- exportable reports
-- admin ingredient knowledge base
-
-### Analytics Improvements
-
-- weekly/monthly goal dashboards
-- trend forecasting
-- family-level analytics
-- more advanced calendar interactions
-
-### Engineering Improvements
-
-- unit tests for scoring logic
-- integration tests for API routes
-- caching for repeated ingredient analysis
-- background job queue for AI tasks
-
-## 22. How To Present This Project
-
-If this project is being presented to faculty, evaluators, or a technical audience, a strong framing is:
-
-> InnerVerse is a personalized nutrition analysis system that combines AI-based label extraction with a custom rule-based health scoring engine. It helps users understand whether a packaged food is suitable for their personal health profile and current nutrition goal, then tracks long-term consistency through insights, streaks, and a goal calendar.
-
-A concise technical summary:
-
-> We built a full-stack React, Express, and MongoDB application that uses Gemini for multimodal label extraction and ingredient interpretation, then applies a custom scoring algorithm based on nutrition thresholds, ingredient quality, medical context, and goal alignment.
-
 ## 23. Conclusion
 
 InnerVerse demonstrates how AI can be combined with deterministic application logic to build an explainable, personalized health product.
